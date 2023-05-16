@@ -1,14 +1,12 @@
 import CryptoPoops from 0x01
 import NonFungibleToken from 0x02
 
-transaction() {
+pub fun main(account: Address): &NonFungibleToken.NFT {
 
-  prepare(acct: AuthAccount) {
-    acct.save(<-CryptoPoops.createEmptyCollection(), to: /storage/Collection )
-    acct.link<&CryptoPoops.Collection{NonFungibleToken.CollectionPublic, CryptoPoops.MyCollectionPublic }>(/public/Collection, target: /storage/Collection )
-  }
-
-  execute {
-    log("Collection created")
-  }
+  let publicRefrence = getAccount(account).getCapability(/public/Collection) 
+                          .borrow<&CryptoPoops.Collection{CryptoPoops.MyCollectionPublic}>() 
+                          ?? panic("Collection is Missing")
+                          
+  let NFTId = publicRefrence.getIDs()
+  return publicRefrence.borrowAuthNFT(id: NFTId[0])
 }
